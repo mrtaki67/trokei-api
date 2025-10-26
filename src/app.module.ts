@@ -1,14 +1,15 @@
 import { Module } from '@nestjs/common'
 import { PrismaService } from './prisma/prisma.service'
-import { CreateAccountController } from './controllers/create-account.controller'
+import { CreateAccountController } from './controllers/users/create-account.controller'
 import { ConfigModule } from '@nestjs/config'
 import { envSchema } from './env'
 import { AuthModule } from './auth/auth.module'
-import { SessionsController } from './controllers/sessions.controller'
-import { CreateAdvertisementsController } from './controllers/create-advertisements.controller'
+import { SessionsController } from './controllers/auth/sessions.controller'
+import { CreateAdvertisementsController } from './controllers/advertisements/create-advertisements.controller'
 import { StorageService } from './lib/storage.service'
-import { GetAttachmentController } from './controllers/get-attachment.controller'
-import { UpdateAdvertisementsController } from './controllers/update-advertisements.controller'
+import { GetAttachmentController } from './controllers/advertisements/get-attachment.controller'
+import { UpdateAdvertisementsController } from './controllers/advertisements/update-advertisements.controller'
+import { DeleteAdvertisementsController } from './controllers/advertisements/delete-advertisements.controller'
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { UpdateAdvertisementsController } from './controllers/update-advertiseme
     CreateAdvertisementsController,
     GetAttachmentController,
     UpdateAdvertisementsController,
+    DeleteAdvertisementsController,
   ],
   providers: [PrismaService, StorageService],
 })
