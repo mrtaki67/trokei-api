@@ -1,0 +1,30 @@
+@baseUrl = http://localhost:3333
+@acess_token = {{authenticate.response.body.access_token}}
+
+###
+# @name create_account
+POST {{baseUrl}}/accounts
+Content-Type: application/json
+
+{
+  "name": "Jhon Doe",
+  "email": "jhondoe@gmail.com",
+  "password": "123",
+  "lgpdConsent": true
+}
+
+###
+# @name authenticate
+POST {{baseUrl}}/sessions
+Content-Type: application/json
+
+{
+  "email": "jhondoe@gmail.com",
+  "password": "123"
+}
+
+###
+# @name GetAttachments
+GET {{baseUrl}}/attachments/a610adee-2eb4-4cd9-a844-61f4f4608b1b-file
+Content-Type: application/json
+Authorization: Bearer {{acess_token}}
