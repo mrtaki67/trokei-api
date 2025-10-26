@@ -2,6 +2,7 @@ import {
   S3Client,
   PutObjectCommand,
   GetObjectCommand,
+  DeleteObjectsCommand,
 } from '@aws-sdk/client-s3'
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
@@ -69,5 +70,20 @@ export class StorageService {
     const signedUrl = await getSignedUrl(this.s3, command, { expiresIn: 300 })
 
     return { signedUrl }
+  }
+
+  async deleteMany(keys: string[]) {
+    if (!keys || keys.length === 0) {
+      return
+    }
+
+    const deleteCommand = new DeleteObjectsCommand({
+      Bucket: this.configService.get('CLOUDFLARE_BUCKET_NAME', { infer: true }),
+      Delete: {
+        Objects: keys.map((key) => ({ Key: key })),
+      },
+    })
+
+    await this.s3.send(deleteCommand)
   }
 }

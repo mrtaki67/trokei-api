@@ -8,6 +8,7 @@ import { SessionsController } from './controllers/sessions.controller'
 import { CreateAdvertisementsController } from './controllers/create-advertisements.controller'
 import { StorageService } from './lib/storage.service'
 import { GetAttachmentController } from './controllers/get-attachment.controller'
+import { UpdateAdvertisementsController } from './controllers/update-advertisements.controller'
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { GetAttachmentController } from './controllers/get-attachment.controller
     SessionsController,
     CreateAdvertisementsController,
     GetAttachmentController,
+    UpdateAdvertisementsController,
   ],
   providers: [PrismaService, StorageService],
 })

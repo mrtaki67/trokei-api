@@ -34,10 +34,19 @@ model Anuncio {
   descricao   String    @db.VarChar(200)
   tags        Json
   localizacao Json
-  fotos       Json?
+  fotos       FotoAnuncio[]
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime? @updatedAt @map("updated_at")
   expiresAt   DateTime  @map("expires_at")
 
   @@map("anuncios")
+}
+
+model FotoAnuncio {
+  id        String  @id @default(uuid())
+  key       String  @unique
+  anuncioId String
+  anuncio   Anuncio @relation(fields: [anuncioId], references: [id], onDelete: Cascade)
+
+  @@map("fotos_anuncios")
 }

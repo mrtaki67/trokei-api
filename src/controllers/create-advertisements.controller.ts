@@ -25,8 +25,16 @@ const locationSchema = z.object({
 })
 
 const createAdvertisementsBodySchema = z.object({
-  titulo: z.string().max(50),
-  descricao: z.string().max(200),
+  titulo: z
+    .string()
+    .trim()
+    .min(1, 'O título não pode estar em branco.')
+    .max(50),
+  descricao: z
+    .string()
+    .trim()
+    .min(1, 'A descricao não pode estar em branco.')
+    .max(200),
   // Tags virão como uma string separada por vírgulas. Ex: "novo,troca,urgente"
   tags: z
     .string()
@@ -82,8 +90,6 @@ export class CreateAdvertisementsController {
       throw new ForbiddenException('Pelo menos uma foto é necessária.')
     }
 
-    console.log(files)
-
     const uploadedPhotoKeys = await this.storage.uploadMany(
       files.map((file) => ({
         fileName: file.fieldname,
@@ -118,7 +124,11 @@ export class CreateAdvertisementsController {
         descricao,
         tags,
         localizacao,
-        fotos: uploadedPhotoKeys,
+        fotos: {
+          create: uploadedPhotoKeys.map((key) => ({
+            key,
+          })),
+        },
       },
     })
   }
