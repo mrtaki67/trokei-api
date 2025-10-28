@@ -33,13 +33,30 @@ model Anuncio {
   titulo      String    @db.VarChar(50)
   descricao   String    @db.VarChar(200)
   tags        Json
-  localizacao Json
+  
+  lat         Float
+  lng         Float
+  bairro      String    @db.VarChar(50)
+  cidade      String    @db.VarChar(50)
+
   fotos       FotoAnuncio[]
   createdAt   DateTime  @default(now()) @map("created_at")
   updatedAt   DateTime? @updatedAt @map("updated_at")
   expiresAt   DateTime  @map("expires_at")
+  deletedAt   DateTime? @map("deleted_at")
+  motivoExclusao MotivoExclusao? @map("motivo_exclusao")
 
   @@map("anuncios")
+}
+
+enum MotivoExclusao {
+  TROQUEI_PELA_TROKE
+  DOEI_PELA_TROKE
+  DESAPEGUEI_POR_OUTRO_MEIO
+  DESISTI_DE_DESAPEGAR
+  OUTRO_MOTIVO
+
+  @@map("motivos_exclusao")
 }
 
 model FotoAnuncio {

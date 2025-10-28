@@ -7,9 +7,11 @@ import { AuthModule } from './auth/auth.module'
 import { SessionsController } from './controllers/auth/sessions.controller'
 import { CreateAdvertisementsController } from './controllers/advertisements/create-advertisements.controller'
 import { StorageService } from './lib/storage.service'
-import { GetAttachmentController } from './controllers/advertisements/get-attachment.controller'
+import { GetAttachmentController } from './lib/get-attachment.controller'
 import { UpdateAdvertisementsController } from './controllers/advertisements/update-advertisements.controller'
 import { DeleteAdvertisementsController } from './controllers/advertisements/delete-advertisements.controller'
+import { FetchAllAdvertisementsController } from './controllers/advertisements/fetch-all-advertisements.controller'
+import { FetchAdvertisementController } from './controllers/advertisements/fetch-advertisement.controller'
 
 @Module({
   imports: [
@@ -26,6 +28,8 @@ import { DeleteAdvertisementsController } from './controllers/advertisements/del
     GetAttachmentController,
     UpdateAdvertisementsController,
     DeleteAdvertisementsController,
+    FetchAllAdvertisementsController,
+    FetchAdvertisementController,
   ],
   providers: [PrismaService, StorageService],
 })

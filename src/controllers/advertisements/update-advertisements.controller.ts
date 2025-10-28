@@ -22,11 +22,6 @@ import { ZodValidationPipe } from 'src/pipes/zod-validation-pipe'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { z } from 'zod'
 
-const locationSchema = z.object({
-  lat: z.number(),
-  lng: z.number(),
-})
-
 const updateAdvertisementsBodySchema = z
   .object({
     titulo: z
@@ -51,12 +46,18 @@ const updateAdvertisementsBodySchema = z
           .min(1, 'Pelo menos uma tag é necessária.')
           .max(5, 'O anúncio pode ter no máximo 5 tags.'),
       ),
-    // Localização virá como uma string JSON. Ex: '{"lat": -23.5, "lng": -46.6}'
-    localizacao: z
+    lat: z.string().pipe(z.coerce.number()),
+    lng: z.string().pipe(z.coerce.number()),
+    bairro: z
       .string()
       .trim()
-      .max(200)
-      .transform((val) => locationSchema.parse(JSON.parse(val))),
+      .min(1, 'O campo bairro não pode estar em branco.')
+      .max(50),
+    cidade: z
+      .string()
+      .trim()
+      .min(1, 'O campo cidade não pode estar em branco.')
+      .max(50),
     // Recebe um array de chaves de fotos para deletar
     fotosParaDeletar: z.array(z.string()).optional().default([]),
   })
@@ -98,7 +99,16 @@ export class UpdateAdvertisementsController {
     @Param('id') id: string,
   ) {
     const { sub: userId } = user
-    const { fotosParaDeletar, titulo, descricao, localizacao, tags } = body
+    const {
+      fotosParaDeletar,
+      titulo,
+      descricao,
+      lat,
+      lng,
+      bairro,
+      cidade,
+      tags,
+    } = body
 
     const advertisement = await this.prisma.anuncio.findUnique({
       where: {
@@ -169,7 +179,10 @@ export class UpdateAdvertisementsController {
       data: {
         titulo,
         descricao,
-        localizacao,
+        lat,
+        lng,
+        bairro,
+        cidade,
         tags,
         fotos: {
           create: novasFotosKeys.map((key) => ({

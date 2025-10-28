@@ -19,11 +19,6 @@ import { ZodValidationPipe } from 'src/pipes/zod-validation-pipe'
 import { PrismaService } from 'src/prisma/prisma.service'
 import { z } from 'zod'
 
-const locationSchema = z.object({
-  lat: z.number(),
-  lng: z.number(),
-})
-
 const createAdvertisementsBodySchema = z.object({
   titulo: z
     .string()
@@ -45,10 +40,18 @@ const createAdvertisementsBodySchema = z.object({
         .min(1, 'Pelo menos uma tag é necessária.')
         .max(5, 'O anúncio pode ter no máximo 5 tags.'),
     ),
-  // Localização virá como uma string JSON. Ex: '{"lat": -23.5, "lng": -46.6}'
-  localizacao: z
+  lat: z.string().pipe(z.coerce.number()),
+  lng: z.string().pipe(z.coerce.number()),
+  bairro: z
     .string()
-    .transform((val) => locationSchema.parse(JSON.parse(val))),
+    .trim()
+    .min(1, 'O campo bairro não pode estar em branco.')
+    .max(50),
+  cidade: z
+    .string()
+    .trim()
+    .min(1, 'O campo cidade não pode estar em branco.')
+    .max(50),
 })
 
 export type CreateAdvertisementsBodySchema = z.infer<
@@ -83,7 +86,7 @@ export class CreateAdvertisementsController {
     body: CreateAdvertisementsBodySchema,
     @CurrentUser() user: UserPayload,
   ) {
-    const { titulo, descricao, localizacao, tags } = body
+    const { titulo, descricao, tags, lat, lng, bairro, cidade } = body
     const { sub: userId } = user
 
     if (!files || files.length === 0) {
@@ -123,7 +126,10 @@ export class CreateAdvertisementsController {
         expiresAt,
         descricao,
         tags,
-        localizacao,
+        lat,
+        lng,
+        bairro,
+        cidade,
         fotos: {
           create: uploadedPhotoKeys.map((key) => ({
             key,
