@@ -12,6 +12,8 @@ import { UpdateAdvertisementsController } from './controllers/advertisements/upd
 import { DeleteAdvertisementsController } from './controllers/advertisements/delete-advertisements.controller'
 import { FetchAllAdvertisementsController } from './controllers/advertisements/fetch-all-advertisements.controller'
 import { FetchAdvertisementController } from './controllers/advertisements/fetch-advertisement.controller'
+import { StartChatController } from './controllers/chat/start-chat.controller'
+import { SendMessageController } from './controllers/chat/send-message.controller'
 
 @Module({
   imports: [
@@ -30,6 +32,8 @@ import { FetchAdvertisementController } from './controllers/advertisements/fetch
     DeleteAdvertisementsController,
     FetchAllAdvertisementsController,
     FetchAdvertisementController,
+    StartChatController,
+    SendMessageController,
   ],
   providers: [PrismaService, StorageService],
 })

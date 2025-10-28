@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `conversas` ADD COLUMN `status` ENUM('ATIVA', 'ENCERRADA') NOT NULL DEFAULT 'ATIVA';

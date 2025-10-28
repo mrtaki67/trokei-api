@@ -64,14 +64,27 @@ export class DeleteAdvertisementsController {
       )
     }
 
-    await this.prisma.anuncio.update({
-      where: {
-        id,
-      },
-      data: {
-        deletedAt: new Date(),
-        motivoExclusao,
-      },
-    })
+    // Usar uma transação para garantir que ambas as operações sejam concluídas com sucesso.
+    await this.prisma.$transaction([
+      // 1. Marcar o anúncio como deletado
+      this.prisma.anuncio.update({
+        where: {
+          id,
+        },
+        data: {
+          deletedAt: new Date(),
+          motivoExclusao,
+        },
+      }),
+      // 2. Encerrar todas as conversas associadas a este anúncio
+      this.prisma.conversa.updateMany({
+        where: {
+          anuncioId: id,
+        },
+        data: {
+          status: 'ENCERRADA',
+        },
+      }),
+    ])
   }
 }

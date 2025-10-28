@@ -14,36 +14,37 @@ datasource db {
 }
 
 model User {
-  id          String    @id() @default(uuid())
+  id          String     @id() @default(uuid())
   name        String
-  email       String    @unique
+  email       String     @unique
   password    String
   lgpdConsent Boolean
   anuncios    Anuncio[]
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime? @updatedAt @map("updated_at")
+  conversas   Conversa[] @relation("participantes")
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime?  @updatedAt @map("updated_at")
+  Mensagem    Mensagem[]
 
   @@map("users")
 }
 
 model Anuncio {
-  id          String    @id @default(uuid())
-  userId      String
-  user        User      @relation(fields: [userId], references: [id])
-  titulo      String    @db.VarChar(50)
-  descricao   String    @db.VarChar(200)
-  tags        Json
-  
-  lat         Float
-  lng         Float
-  bairro      String    @db.VarChar(50)
-  cidade      String    @db.VarChar(50)
-
-  fotos       FotoAnuncio[]
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime? @updatedAt @map("updated_at")
-  expiresAt   DateTime  @map("expires_at")
-  deletedAt   DateTime? @map("deleted_at")
+  id             String          @id @default(uuid())
+  userId         String
+  user           User            @relation(fields: [userId], references: [id])
+  titulo         String          @db.VarChar(50)
+  descricao      String          @db.VarChar(200)
+  tags           Json
+  lat            Float
+  lng            Float
+  bairro         String          @db.VarChar(50)
+  cidade         String          @db.VarChar(50)
+  fotos          FotoAnuncio[]
+  conversas      Conversa[]
+  createdAt      DateTime        @default(now()) @map("created_at")
+  updatedAt      DateTime?       @updatedAt @map("updated_at")
+  expiresAt      DateTime        @map("expires_at")
+  deletedAt      DateTime?       @map("deleted_at")
   motivoExclusao MotivoExclusao? @map("motivo_exclusao")
 
   @@map("anuncios")
@@ -66,4 +67,38 @@ model FotoAnuncio {
   anuncio   Anuncio @relation(fields: [anuncioId], references: [id], onDelete: Cascade)
 
   @@map("fotos_anuncios")
+}
+
+enum StatusConversa {
+  ATIVA
+  ENCERRADA
+
+  @@map("status_conversa")
+}
+
+model Conversa {
+  id            String         @id @default(uuid())
+  anuncioId     String
+  anuncio       Anuncio        @relation(fields: [anuncioId], references: [id])
+  // Relação com os participantes da conversa
+  participantes User[]         @relation("participantes")
+  mensagens     Mensagem[]
+  createdAt     DateTime       @default(now()) @map("created_at")
+  updatedAt     DateTime       @updatedAt @map("updated_at")
+  status        StatusConversa @default(ATIVA)
+
+  @@map("conversas")
+}
+
+model Mensagem {
+  id          String    @id @default(uuid())
+  conteudo    String    @db.Text
+  conversaId  String
+  conversa    Conversa  @relation(fields: [conversaId], references: [id], onDelete: Cascade)
+  remetenteId String
+  remetente   User      @relation(fields: [remetenteId], references: [id])
+  lidoEm      DateTime? @map("lido_em")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  @@map("mensagens")
 }
