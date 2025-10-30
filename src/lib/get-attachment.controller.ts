@@ -1,9 +1,9 @@
 import { Controller, Get, Param, UseGuards } from '@nestjs/common'
-import { JwtAuthGuard } from 'src/auth/jwt-auth-guard'
+import { ClerkAuthGuard } from 'src/auth/clerk-auth-guard'
 import { StorageService } from 'src/lib/storage.service'
 
 @Controller('/attachments/:key')
-@UseGuards(JwtAuthGuard) // Protege o endpoint, apenas usuários logados podem acessar
+@UseGuards(ClerkAuthGuard) // Protege o endpoint, apenas usuários logados podem acessar
 export class GetAttachmentController {
   constructor(private readonly storage: StorageService) {}
 

@@ -7,12 +7,12 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common'
+import { ClerkAuthGuard } from 'src/auth/clerk-auth-guard'
 import { CurrentUser } from 'src/auth/current-user.decorator'
-import { JwtAuthGuard } from 'src/auth/jwt-auth-guard'
 import type { UserPayload } from 'src/auth/jwt.strategy'
 import { PrismaService } from 'src/prisma/prisma.service'
 
-@UseGuards(JwtAuthGuard)
+@UseGuards(ClerkAuthGuard)
 @Controller('/advertisements/:anuncioId/chats')
 export class StartChatController {
   constructor(private prisma: PrismaService) {}
@@ -21,9 +21,19 @@ export class StartChatController {
   @HttpCode(201)
   async handle(
     @Param('anuncioId') anuncioId: string,
-    @CurrentUser() user: UserPayload,
+    @CurrentUser() userKey: UserPayload,
   ) {
-    const { sub: interessadoId } = user
+    const { id: clerkId } = userKey
+
+    const user = await this.prisma.user.findUnique({
+      where: {
+        clerkId,
+      },
+    })
+
+    if (!user) {
+      throw new ForbiddenException('Usuário não encontrado.')
+    }
 
     const anuncio = await this.prisma.anuncio.findUnique({
       where: { id: anuncioId },
@@ -43,7 +53,7 @@ export class StartChatController {
 
     const anuncianteId = anuncio.userId
 
-    if (interessadoId === anuncianteId) {
+    if (user.id === anuncianteId) {
       throw new ForbiddenException(
         'Você não pode iniciar uma conversa em seu próprio anúncio.',
       )
@@ -55,7 +65,7 @@ export class StartChatController {
         anuncioId,
         participantes: {
           every: {
-            id: { in: [interessadoId, anuncianteId] },
+            id: { in: [user.id, anuncianteId] },
           },
         },
       },
@@ -67,7 +77,7 @@ export class StartChatController {
         data: {
           anuncioId,
           participantes: {
-            connect: [{ id: interessadoId }, { id: anuncianteId }],
+            connect: [{ id: user.id }, { id: anuncianteId }],
           },
         },
       })

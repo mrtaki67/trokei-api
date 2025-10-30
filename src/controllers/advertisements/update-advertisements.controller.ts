@@ -14,8 +14,8 @@ import {
   UseInterceptors,
 } from '@nestjs/common'
 import { FilesInterceptor } from '@nestjs/platform-express'
+import { ClerkAuthGuard } from 'src/auth/clerk-auth-guard'
 import { CurrentUser } from 'src/auth/current-user.decorator'
-import { JwtAuthGuard } from 'src/auth/jwt-auth-guard'
 import type { UserPayload } from 'src/auth/jwt.strategy'
 import { StorageService } from 'src/lib/storage.service'
 import { ZodValidationPipe } from 'src/pipes/zod-validation-pipe'
@@ -67,7 +67,7 @@ export type UpdateAdvertisementsBodySchema = z.infer<
   typeof updateAdvertisementsBodySchema
 >
 
-@UseGuards(JwtAuthGuard)
+@UseGuards(ClerkAuthGuard)
 @Controller('/advertisements')
 export class UpdateAdvertisementsController {
   constructor(
@@ -95,10 +95,9 @@ export class UpdateAdvertisementsController {
     files: Array<Express.Multer.File>,
     @Body(new ZodValidationPipe(updateAdvertisementsBodySchema))
     body: UpdateAdvertisementsBodySchema,
-    @CurrentUser() user: UserPayload,
     @Param('id') id: string,
+    @CurrentUser() userKey: UserPayload,
   ) {
-    const { sub: userId } = user
     const {
       fotosParaDeletar,
       titulo,
@@ -109,6 +108,18 @@ export class UpdateAdvertisementsController {
       cidade,
       tags,
     } = body
+
+    const { id: clerkId } = userKey
+
+    const user = await this.prisma.user.findUnique({
+      where: {
+        clerkId,
+      },
+    })
+
+    if (!user) {
+      throw new ForbiddenException('Usuário não encontrado.')
+    }
 
     const advertisement = await this.prisma.anuncio.findUnique({
       where: {
@@ -123,7 +134,7 @@ export class UpdateAdvertisementsController {
       throw new NotFoundException('Anúncio não encontrado.')
     }
 
-    if (advertisement.userId !== userId) {
+    if (advertisement.userId !== user.id) {
       throw new ForbiddenException(
         'Você não tem permissão para editar este anúncio.',
       )

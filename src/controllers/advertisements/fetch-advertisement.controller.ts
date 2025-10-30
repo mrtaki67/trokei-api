@@ -1,14 +1,6 @@
-import {
-  Controller,
-  Get,
-  NotFoundException,
-  Param,
-  UseGuards,
-} from '@nestjs/common'
-import { JwtAuthGuard } from 'src/auth/jwt-auth-guard'
+import { Controller, Get, NotFoundException, Param } from '@nestjs/common'
 import { PrismaService } from 'src/prisma/prisma.service'
 
-@UseGuards(JwtAuthGuard)
 @Controller('/advertisements/:id')
 export class FetchAdvertisementController {
   constructor(private prisma: PrismaService) {}

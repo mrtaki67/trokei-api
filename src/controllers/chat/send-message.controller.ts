@@ -8,8 +8,8 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common'
+import { ClerkAuthGuard } from 'src/auth/clerk-auth-guard'
 import { CurrentUser } from 'src/auth/current-user.decorator'
-import { JwtAuthGuard } from 'src/auth/jwt-auth-guard'
 import type { UserPayload } from 'src/auth/jwt.strategy'
 import { ZodValidationPipe } from 'src/pipes/zod-validation-pipe'
 import { PrismaService } from 'src/prisma/prisma.service'
@@ -21,7 +21,7 @@ const sendMessageBodySchema = z.object({
 
 type SendMessageBodySchema = z.infer<typeof sendMessageBodySchema>
 
-@UseGuards(JwtAuthGuard)
+@UseGuards(ClerkAuthGuard)
 @Controller('/chats/:chatId/messages')
 export class SendMessageController {
   constructor(private prisma: PrismaService) {}
@@ -32,10 +32,20 @@ export class SendMessageController {
     @Param('chatId') chatId: string,
     @Body(new ZodValidationPipe(sendMessageBodySchema))
     body: SendMessageBodySchema,
-    @CurrentUser() user: UserPayload,
+    @CurrentUser() userKey: UserPayload,
   ) {
-    const { sub: remetenteId } = user
     const { conteudo } = body
+    const { id: clerkId } = userKey
+
+    const user = await this.prisma.user.findUnique({
+      where: {
+        clerkId,
+      },
+    })
+
+    if (!user) {
+      throw new ForbiddenException('Usuário não encontrado.')
+    }
 
     const conversa = await this.prisma.conversa.findUnique({
       where: {
@@ -44,7 +54,7 @@ export class SendMessageController {
       include: {
         participantes: {
           where: {
-            id: remetenteId,
+            id: user.id,
           },
         },
       },
@@ -68,7 +78,7 @@ export class SendMessageController {
       data: {
         conteudo,
         conversaId: chatId,
-        remetenteId,
+        remetenteId: user.id,
       },
     })
 

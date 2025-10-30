@@ -11,8 +11,8 @@ import {
   UseInterceptors,
 } from '@nestjs/common'
 import { FilesInterceptor } from '@nestjs/platform-express'
+import { ClerkAuthGuard } from 'src/auth/clerk-auth-guard'
 import { CurrentUser } from 'src/auth/current-user.decorator'
-import { JwtAuthGuard } from 'src/auth/jwt-auth-guard'
 import type { UserPayload } from 'src/auth/jwt.strategy'
 import { StorageService } from 'src/lib/storage.service'
 import { ZodValidationPipe } from 'src/pipes/zod-validation-pipe'
@@ -58,7 +58,7 @@ export type CreateAdvertisementsBodySchema = z.infer<
   typeof createAdvertisementsBodySchema
 >
 
-@UseGuards(JwtAuthGuard)
+@UseGuards(ClerkAuthGuard)
 @Controller('/advertisements')
 export class CreateAdvertisementsController {
   constructor(
@@ -84,10 +84,20 @@ export class CreateAdvertisementsController {
     files: Array<Express.Multer.File>,
     @Body(new ZodValidationPipe(createAdvertisementsBodySchema))
     body: CreateAdvertisementsBodySchema,
-    @CurrentUser() user: UserPayload,
+    @CurrentUser() userKey: UserPayload,
   ) {
     const { titulo, descricao, tags, lat, lng, bairro, cidade } = body
-    const { sub: userId } = user
+    const { id: clerkId } = userKey
+
+    const user = await this.prisma.user.findUnique({
+      where: {
+        clerkId,
+      },
+    })
+
+    if (!user) {
+      throw new ForbiddenException('Usuário não encontrado.')
+    }
 
     if (!files || files.length === 0) {
       throw new ForbiddenException('Pelo menos uma foto é necessária.')
@@ -103,7 +113,7 @@ export class CreateAdvertisementsController {
 
     const userAdvertisementsCount = await this.prisma.anuncio.count({
       where: {
-        userId,
+        userId: user.id,
         expiresAt: {
           gt: new Date(), // Conta apenas anúncios que ainda não expiraram
         },
@@ -121,7 +131,7 @@ export class CreateAdvertisementsController {
 
     await this.prisma.anuncio.create({
       data: {
-        userId,
+        userId: user.id,
         titulo,
         expiresAt,
         descricao,

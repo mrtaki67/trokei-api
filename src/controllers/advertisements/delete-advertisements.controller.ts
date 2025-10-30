@@ -10,10 +10,10 @@ import {
 } from '@nestjs/common'
 import { z } from 'zod'
 import { CurrentUser } from 'src/auth/current-user.decorator'
-import { JwtAuthGuard } from 'src/auth/jwt-auth-guard'
 import type { UserPayload } from 'src/auth/jwt.strategy'
 import { ZodValidationPipe } from 'src/pipes/zod-validation-pipe'
 import { PrismaService } from 'src/prisma/prisma.service'
+import { ClerkAuthGuard } from 'src/auth/clerk-auth-guard'
 
 const deleteAdvertisementBodySchema = z.object({
   motivoExclusao: z.enum([
@@ -29,7 +29,7 @@ type DeleteAdvertisementBodySchema = z.infer<
   typeof deleteAdvertisementBodySchema
 >
 
-@UseGuards(JwtAuthGuard)
+@UseGuards(ClerkAuthGuard)
 @Controller('/advertisements')
 export class DeleteAdvertisementsController {
   constructor(private prisma: PrismaService) {}
@@ -37,13 +37,23 @@ export class DeleteAdvertisementsController {
   @Patch(':id/delete')
   @HttpCode(204)
   async handle(
-    @CurrentUser() user: UserPayload,
+    @CurrentUser() userKey: UserPayload,
     @Param('id') id: string,
     @Body(new ZodValidationPipe(deleteAdvertisementBodySchema))
     body: DeleteAdvertisementBodySchema,
   ) {
-    const { sub: userId } = user
+    const { id: clerkId } = userKey
     const { motivoExclusao } = body
+
+    const user = await this.prisma.user.findUnique({
+      where: {
+        clerkId,
+      },
+    })
+
+    if (!user) {
+      throw new ForbiddenException('Usuário não encontrado.')
+    }
 
     const advertisement = await this.prisma.anuncio.findUnique({
       where: {
@@ -58,7 +68,7 @@ export class DeleteAdvertisementsController {
       throw new NotFoundException('Anúncio não encontrado.')
     }
 
-    if (advertisement.userId !== userId) {
+    if (advertisement.userId !== user.id) {
       throw new ForbiddenException(
         'Você não tem permissão para excluir este anúncio.',
       )

@@ -1,11 +1,4 @@
-import {
-  Controller,
-  Get,
-  Query,
-  UseGuards,
-  BadRequestException,
-} from '@nestjs/common'
-import { JwtAuthGuard } from 'src/auth/jwt-auth-guard'
+import { Controller, Get, Query, BadRequestException } from '@nestjs/common'
 import { Prisma } from '@prisma/client'
 import { ZodValidationPipe } from 'src/pipes/zod-validation-pipe'
 import { PrismaService } from 'src/prisma/prisma.service'
@@ -34,7 +27,6 @@ type FetchAllAdvertisementsQuerySchema = z.infer<
   typeof fetchAllAdvertisementsQuerySchema
 >
 
-@UseGuards(JwtAuthGuard)
 @Controller('/advertisements')
 export class FetchAllAdvertisementsController {
   constructor(private prisma: PrismaService) {}
@@ -82,6 +74,13 @@ export class FetchAllAdvertisementsController {
           createdAt: true,
           bairro: true,
           cidade: true,
+          fotos: {
+            take: 1,
+            select: {
+              id: true,
+              key: true,
+            },
+          },
         },
       })
       return { advertisements }
@@ -93,7 +92,13 @@ export class FetchAllAdvertisementsController {
       const advertisements: unknown[] = await this.prisma.$queryRaw`
         SELECT * FROM (
           SELECT
-            *, 
+            *,
+            (
+              SELECT JSON_OBJECT('id', f.id, 'key', f.key)
+              FROM \`fotos_anuncios\` f
+                WHERE f.anuncioId = anuncios.id
+                LIMIT 1
+            ) AS foto,
             CASE
               WHEN ( 6371 * acos( cos( radians(${lat}) ) * cos( radians( lat ) ) * cos( radians( lng ) - radians(${lng}) ) + sin( radians(${lat}) ) * sin( radians( lat ) ) ) ) < 1 
               THEN CONCAT(ROUND(( 6371 * acos( cos( radians(${lat}) ) * cos( radians( lat ) ) * cos( radians( lng ) - radians(${lng}) ) + sin( radians(${lat}) ) * sin( radians( lat ) ) ) ) * 1000), 'm')
