@@ -12,6 +12,8 @@ export const envSchema = z.object({
   CLERK_PUBLISHABLE_KEY: z.string(),
   CLERK_SECRET_KEY: z.string(),
   CLERK_WEBHOOK_SECRET: z.string(),
+  TROKEI_APP_URL: z.string().url(),
+  TROKEI_APP_URL_WWW: z.string().url(),
 })
 
 export type Env = z.infer<typeof envSchema>
