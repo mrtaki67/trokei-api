@@ -22,8 +22,5 @@
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
     "strict": true,
-    "types": [
-      "Multer"
-    ]
   }
 }
