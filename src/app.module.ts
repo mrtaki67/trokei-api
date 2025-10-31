@@ -17,6 +17,8 @@ import { SendMessageController } from './controllers/chat/send-message.controlle
 import { FetchAdvertisementsUserController } from './controllers/advertisements/fetch-advertisement-user.controller'
 import { ClerkWebhook } from './controllers/webhooks/clerk-webhook.controller'
 import { ClerkClientProvider } from './auth/clerk-client.service'
+import { FetchChatsController } from './controllers/chat/fetch-chats.controller'
+import { FetchChatController } from './controllers/chat/fetch-chat.controller'
 
 @Module({
   imports: [
@@ -39,6 +41,8 @@ import { ClerkClientProvider } from './auth/clerk-client.service'
     SendMessageController,
     FetchAdvertisementsUserController,
     ClerkWebhook,
+    FetchChatsController,
+    FetchChatController,
   ],
   providers: [PrismaService, StorageService, ClerkClientProvider],
 })

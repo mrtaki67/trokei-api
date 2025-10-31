@@ -40,6 +40,9 @@ model Anuncio {
   lng            Float
   bairro         String          @db.VarChar(50)
   cidade         String          @db.VarChar(50)
+  estado         String          @db.VarChar(50)
+  cep            String          @db.VarChar(50)
+  pais           String          @db.VarChar(50)
   fotos          FotoAnuncio[]
   conversas      Conversa[]
   createdAt      DateTime        @default(now()) @map("created_at")

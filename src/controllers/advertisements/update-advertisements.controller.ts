@@ -3,7 +3,6 @@ import {
   Controller,
   FileTypeValidator,
   ForbiddenException,
-  HttpCode,
   MaxFileSizeValidator,
   NotFoundException,
   Param,
@@ -58,6 +57,21 @@ const updateAdvertisementsBodySchema = z
       .trim()
       .min(1, 'O campo cidade não pode estar em branco.')
       .max(50),
+    estado: z
+      .string()
+      .trim()
+      .min(1, 'O campo estado não pode estar em branco.')
+      .max(50),
+    cep: z
+      .string()
+      .trim()
+      .min(1, 'O campo estado não pode estar em branco.')
+      .max(50),
+    pais: z
+      .string()
+      .trim()
+      .min(1, 'O campo estado não pode estar em branco.')
+      .max(50),
     // Recebe um array de chaves de fotos para deletar
     fotosParaDeletar: z.array(z.string()).optional().default([]),
   })
@@ -76,7 +90,6 @@ export class UpdateAdvertisementsController {
   ) {}
 
   @Patch(':id') // Recebe o ID do anúncio a ser atualizado
-  @HttpCode(204) // Retorna 204 No Content em caso de sucesso
   @UseInterceptors(FilesInterceptor('files', 5))
   async handle(
     @UploadedFiles(
@@ -107,6 +120,9 @@ export class UpdateAdvertisementsController {
       bairro,
       cidade,
       tags,
+      estado,
+      cep,
+      pais,
     } = body
 
     const { id: clerkId } = userKey
@@ -194,6 +210,9 @@ export class UpdateAdvertisementsController {
         lng,
         bairro,
         cidade,
+        estado,
+        cep,
+        pais,
         tags,
         fotos: {
           create: novasFotosKeys.map((key) => ({

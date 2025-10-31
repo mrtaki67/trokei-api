@@ -52,6 +52,21 @@ const createAdvertisementsBodySchema = z.object({
     .trim()
     .min(1, 'O campo cidade não pode estar em branco.')
     .max(50),
+  estado: z
+    .string()
+    .trim()
+    .min(1, 'O campo estado não pode estar em branco.')
+    .max(50),
+  cep: z
+    .string()
+    .trim()
+    .min(1, 'O campo estado não pode estar em branco.')
+    .max(50),
+  pais: z
+    .string()
+    .trim()
+    .min(1, 'O campo estado não pode estar em branco.')
+    .max(50),
 })
 
 export type CreateAdvertisementsBodySchema = z.infer<
@@ -86,7 +101,18 @@ export class CreateAdvertisementsController {
     body: CreateAdvertisementsBodySchema,
     @CurrentUser() userKey: UserPayload,
   ) {
-    const { titulo, descricao, tags, lat, lng, bairro, cidade } = body
+    const {
+      titulo,
+      descricao,
+      tags,
+      lat,
+      lng,
+      bairro,
+      cidade,
+      estado,
+      cep,
+      pais,
+    } = body
     const { id: clerkId } = userKey
 
     const user = await this.prisma.user.findUnique({
@@ -117,6 +143,7 @@ export class CreateAdvertisementsController {
         expiresAt: {
           gt: new Date(), // Conta apenas anúncios que ainda não expiraram
         },
+        deletedAt: null, // Não conta anúncios deletados
       },
     })
 
@@ -140,6 +167,9 @@ export class CreateAdvertisementsController {
         lng,
         bairro,
         cidade,
+        estado,
+        cep,
+        pais,
         fotos: {
           create: uploadedPhotoKeys.map((key) => ({
             key,

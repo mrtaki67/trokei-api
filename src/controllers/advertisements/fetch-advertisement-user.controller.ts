@@ -2,12 +2,16 @@ import { Controller, Get, UseGuards } from '@nestjs/common'
 import { ClerkAuthGuard } from 'src/auth/clerk-auth-guard'
 import { CurrentUser } from 'src/auth/current-user.decorator'
 import type { UserPayload } from 'src/auth/jwt.strategy'
+import { StorageService } from 'src/lib/storage.service'
 import { PrismaService } from 'src/prisma/prisma.service'
 
 @UseGuards(ClerkAuthGuard)
 @Controller('user/advertisements')
 export class FetchAdvertisementsUserController {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private readonly storage: StorageService,
+  ) {}
 
   @Get()
   async handle(@CurrentUser() userKey: UserPayload) {
@@ -21,7 +25,7 @@ export class FetchAdvertisementsUserController {
       throw new Error('User Not Found')
     }
 
-    const advertisements = await this.prisma.anuncio.findMany({
+    const advertisementsData = await this.prisma.anuncio.findMany({
       where: {
         userId: user.id,
         deletedAt: null,
@@ -31,6 +35,7 @@ export class FetchAdvertisementsUserController {
         titulo: true,
         tags: true,
         createdAt: true,
+        updatedAt: true,
         bairro: true,
         cidade: true,
         fotos: {
@@ -42,6 +47,18 @@ export class FetchAdvertisementsUserController {
         },
       },
     })
+
+    const advertisements = await Promise.all(
+      advertisementsData.map(async (ad) => {
+        const { fotos, ...advertisement } = ad
+        const fotoUrl =
+          fotos.length > 0
+            ? await this.storage.getPresignedUrl(fotos[0].key)
+            : null
+
+        return { ...advertisement, fotoUrl: fotoUrl?.signedUrl }
+      }),
+    )
 
     return { advertisements }
   }
