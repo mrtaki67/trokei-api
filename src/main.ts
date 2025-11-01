@@ -17,7 +17,6 @@ async function bootstrap() {
     ],
   })
 
-
   const port = configService.get('PORT', { infer: true })
 
   await app.listen(port)

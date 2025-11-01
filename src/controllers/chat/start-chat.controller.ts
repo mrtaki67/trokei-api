@@ -10,12 +10,18 @@ import {
 import { ClerkAuthGuard } from 'src/auth/clerk-auth-guard'
 import { CurrentUser } from 'src/auth/current-user.decorator'
 import type { UserPayload } from 'src/auth/jwt.strategy'
+import { ChatGateway } from 'src/events/chat.gateway'
+import { StorageService } from 'src/lib/storage.service'
 import { PrismaService } from 'src/prisma/prisma.service'
 
 @UseGuards(ClerkAuthGuard)
 @Controller('/advertisements/:anuncioId/chats')
 export class StartChatController {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private chatGateway: ChatGateway,
+    private storage: StorageService,
+  ) {}
 
   @Post()
   @HttpCode(201)
@@ -81,6 +87,36 @@ export class StartChatController {
           },
         },
       })
+    }
+
+    // Após criar ou encontrar, busca os dados completos para notificar os usuários
+    const fullConversation = await this.prisma.conversa.findUnique({
+      where: { id: conversa.id },
+      include: {
+        anuncio: {
+          select: {
+            id: true,
+            titulo: true,
+            fotos: { take: 1, select: { id: true, key: true } },
+          },
+        },
+        participantes: {
+          select: { id: true, clerkId: true, name: true },
+        },
+        mensagens: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+          select: { conteudo: true, createdAt: true },
+        },
+      },
+    })
+
+    if (fullConversation) {
+      // Notifica ambos os participantes
+      for (const participante of fullConversation.participantes) {
+        // Se o usuário estiver online, ele recebe a notificação em tempo real
+        this.chatGateway.handleNewConversation(participante.clerkId)
+      }
     }
 
     return {

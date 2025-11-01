@@ -13,6 +13,7 @@ import { CurrentUser } from 'src/auth/current-user.decorator'
 import type { UserPayload } from 'src/auth/jwt.strategy'
 import { ZodValidationPipe } from 'src/pipes/zod-validation-pipe'
 import { PrismaService } from 'src/prisma/prisma.service'
+import { ChatGateway } from 'src/events/chat.gateway'
 import { z } from 'zod'
 
 const sendMessageBodySchema = z.object({
@@ -24,7 +25,10 @@ type SendMessageBodySchema = z.infer<typeof sendMessageBodySchema>
 @UseGuards(ClerkAuthGuard)
 @Controller('/chats/:chatId/messages')
 export class SendMessageController {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private chatGateway: ChatGateway,
+  ) {}
 
   @Post()
   @HttpCode(201)
@@ -81,6 +85,9 @@ export class SendMessageController {
         remetenteId: user.id,
       },
     })
+
+    // Notifica os clientes na sala via WebSocket
+    this.chatGateway.handleNewMessage(chatId)
 
     return { mensagem }
   }
