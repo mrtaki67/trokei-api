@@ -23,6 +23,7 @@ model User {
   anuncios    Anuncio[]
   conversas   Conversa[] @relation("participantes")
   createdAt   DateTime   @default(now()) @map("created_at")
+  anunciosSalvos AnuncioSalvo[] 
   updatedAt   DateTime?  @updatedAt @map("updated_at")
   Mensagem    Mensagem[]
 
@@ -45,6 +46,7 @@ model Anuncio {
   pais           String          @db.VarChar(50)
   fotos          FotoAnuncio[]
   conversas      Conversa[]
+  salvoPor       AnuncioSalvo[]
   createdAt      DateTime        @default(now()) @map("created_at")
   updatedAt      DateTime?       @updatedAt @map("updated_at")
   expiresAt      DateTime        @map("expires_at")
@@ -71,6 +73,18 @@ model FotoAnuncio {
   anuncio   Anuncio @relation(fields: [anuncioId], references: [id], onDelete: Cascade)
 
   @@map("fotos_anuncios")
+}
+
+model AnuncioSalvo {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  anuncioId String
+  anuncio   Anuncio  @relation(fields: [anuncioId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([userId, anuncioId])
+  @@map("anuncios_salvos")
 }
 
 enum StatusConversa {

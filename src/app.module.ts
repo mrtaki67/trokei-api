@@ -20,6 +20,7 @@ import { ClerkClientProvider } from './auth/clerk-client.service'
 import { FetchChatsController } from './controllers/chat/fetch-chats.controller'
 import { FetchChatController } from './controllers/chat/fetch-chat.controller'
 import { ChatGateway } from './events/chat.gateway'
+import { SavedAdvertisementsController } from './controllers/advertisements/saved-advertisements.controller'
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { ChatGateway } from './events/chat.gateway'
     ClerkWebhook,
     FetchChatsController,
     FetchChatController,
+    SavedAdvertisementsController,
   ],
   providers: [PrismaService, StorageService, ClerkClientProvider, ChatGateway],
 })
