@@ -21,6 +21,9 @@ export class FetchAdvertisementController {
         user: {
           select: {
             clerkId: true,
+            id: true,
+            name: true,
+            createdAt: true,
           },
         },
       },
