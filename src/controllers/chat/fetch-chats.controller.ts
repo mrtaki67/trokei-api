@@ -36,6 +36,7 @@ export class FetchChatsController {
 
     const chats = await this.prisma.conversa.findMany({
       where: {
+        status: 'ATIVA',
         participantes: {
           some: {
             id: user.id,

@@ -35,6 +35,7 @@ export class FetchAdvertisementsUserController {
         titulo: true,
         createdAt: true,
         updatedAt: true,
+        expiresAt: true,
         bairro: true,
         cidade: true,
         tipoAnuncio: true,

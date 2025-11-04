@@ -22,6 +22,9 @@ import { FetchChatController } from './controllers/chat/fetch-chat.controller'
 import { ChatGateway } from './events/chat.gateway'
 import { SavedAdvertisementsController } from './controllers/advertisements/saved-advertisements.controller'
 import { FetchCategoriesController } from './controllers/categories/fetch-categories.controller'
+import { ScheduleModule } from '@nestjs/schedule'
+import { DeleteExpiredAdvertisementsCronJob } from './jobs/advertisements/delete-expired-advertisements-cron-job.service'
+import { RenewAdvertisementController } from './controllers/advertisements/renew-advertisements.controller'
 
 @Module({
   imports: [
@@ -30,6 +33,7 @@ import { FetchCategoriesController } from './controllers/categories/fetch-catego
       isGlobal: true,
     }),
     AuthModule,
+    ScheduleModule.forRoot(),
   ],
   controllers: [
     // CreateAccountController,
@@ -48,7 +52,14 @@ import { FetchCategoriesController } from './controllers/categories/fetch-catego
     FetchChatController,
     SavedAdvertisementsController,
     FetchCategoriesController,
+    RenewAdvertisementController,
   ],
-  providers: [PrismaService, StorageService, ClerkClientProvider, ChatGateway],
+  providers: [
+    PrismaService,
+    StorageService,
+    ClerkClientProvider,
+    ChatGateway,
+    DeleteExpiredAdvertisementsCronJob,
+  ],
 })
 export class AppModule {}

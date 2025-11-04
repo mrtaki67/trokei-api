@@ -54,6 +54,7 @@ export class SendMessageController {
     const conversa = await this.prisma.conversa.findUnique({
       where: {
         id: chatId,
+        status: 'ATIVA',
       },
       include: {
         participantes: {

@@ -159,7 +159,7 @@ export class CreateAdvertisementsController {
     }
 
     const expiresAt = new Date()
-    expiresAt.setDate(expiresAt.getDate() + 7) // Anúncio expira em 7 dias
+    expiresAt.setDate(expiresAt.getDate() + 30) // Anúncio expira em 30 dias
 
     await this.prisma.anuncio.create({
       data: {

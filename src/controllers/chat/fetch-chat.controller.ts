@@ -37,7 +37,10 @@ export class FetchChatController {
     }
 
     const chat = await this.prisma.conversa.findUnique({
-      where: { id },
+      where: {
+        id,
+        status: 'ATIVA',
+      },
       include: {
         anuncio: {
           select: {
