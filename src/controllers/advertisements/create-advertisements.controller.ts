@@ -106,7 +106,7 @@ export class CreateAdvertisementsController {
       estado,
       cep,
       pais,
-      tipoAnuncio
+      tipoAnuncio,
     } = body
     const { id: clerkId } = userKey
 

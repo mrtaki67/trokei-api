@@ -15,6 +15,8 @@ const fetchAllAdvertisementsQuerySchema = z
     page: z.coerce.number().min(1).optional().default(1),
     titulo: z.string().optional(),
     localidade: z.enum(['perto-de-mim', 'qualquer-lugar']).optional(),
+    categoriaId: z.string().uuid().optional(),
+    tipoAnuncio: z.enum(['TROCA', 'DOACAO', 'VENDA']).optional(),
   })
   .superRefine((data, ctx) => {
     if (data.localidade === 'perto-de-mim') {
@@ -45,7 +47,18 @@ export class FetchAllAdvertisementsController {
     @Query(new ZodValidationPipe(fetchAllAdvertisementsQuerySchema))
     query: FetchAllAdvertisementsQuerySchema,
   ) {
-    const { lat, lng, bairro, cidade, estado, page, titulo, localidade } = query
+    const {
+      lat,
+      lng,
+      bairro,
+      cidade,
+      estado,
+      page,
+      titulo,
+      localidade,
+      categoriaId,
+      tipoAnuncio,
+    } = query
     const perPage = 10
 
     const baseWhere = {
@@ -57,6 +70,12 @@ export class FetchAllAdvertisementsController {
         titulo: {
           contains: titulo,
         },
+      }),
+      ...(categoriaId && {
+        categoriaId,
+      }),
+      ...(tipoAnuncio && {
+        tipoAnuncio,
       }),
     }
 
@@ -207,6 +226,16 @@ export class FetchAllAdvertisementsController {
             ${
               titulo
                 ? Prisma.sql`AND titulo LIKE ${'%' + titulo + '%'}`
+                : Prisma.empty
+            }
+            ${
+              categoriaId
+                ? Prisma.sql`AND categoriaId = ${categoriaId}`
+                : Prisma.empty
+            }
+            ${
+              tipoAnuncio
+                ? Prisma.sql`AND tipo_anuncio = ${tipoAnuncio}`
                 : Prisma.empty
             }
         ) AS anuncios_with_distance
