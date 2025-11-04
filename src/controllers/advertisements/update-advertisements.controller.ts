@@ -64,6 +64,7 @@ const updateAdvertisementsBodySchema = z
       .max(50),
     // Recebe um array de chaves de fotos para deletar
     fotosParaDeletar: z.array(z.string()).optional().default([]),
+    tipoAnuncio: z.enum(['TROCA', 'DOACAO', 'VENDA']),
   })
   .partial() // .partial() torna todos os campos opcionais
 
@@ -113,6 +114,7 @@ export class UpdateAdvertisementsController {
       estado,
       cep,
       pais,
+      tipoAnuncio,
     } = body
 
     const { id: clerkId } = userKey
@@ -214,6 +216,7 @@ export class UpdateAdvertisementsController {
         cep,
         pais,
         categoriaId,
+        tipoAnuncio,
         fotos: {
           create: novasFotosKeys.map((key) => ({
             key,

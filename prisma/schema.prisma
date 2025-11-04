@@ -14,18 +14,18 @@ datasource db {
 }
 
 model User {
-  id          String     @id() @default(uuid())
-  clerkId     String     @unique
-  name        String
-  email       String?     @unique
-  password    String?
-  lgpdConsent Boolean
-  anuncios    Anuncio[]
-  conversas   Conversa[] @relation("participantes")
-  createdAt   DateTime   @default(now()) @map("created_at")
-  anunciosSalvos AnuncioSalvo[] 
-  updatedAt   DateTime?  @updatedAt @map("updated_at")
-  Mensagem    Mensagem[]
+  id             String         @id() @default(uuid())
+  clerkId        String         @unique
+  name           String
+  email          String?        @unique
+  password       String?
+  lgpdConsent    Boolean
+  anuncios       Anuncio[]
+  conversas      Conversa[]     @relation("participantes")
+  createdAt      DateTime       @default(now()) @map("created_at")
+  anunciosSalvos AnuncioSalvo[]
+  updatedAt      DateTime?      @updatedAt @map("updated_at")
+  Mensagem       Mensagem[]
 
   @@map("users")
 }
@@ -53,6 +53,7 @@ model Anuncio {
   expiresAt      DateTime        @map("expires_at")
   deletedAt      DateTime?       @map("deleted_at")
   motivoExclusao MotivoExclusao? @map("motivo_exclusao")
+  tipoAnuncio    TipoAnuncio?    @map("tipo_anuncio")
 
   @@map("anuncios")
 }
@@ -64,6 +65,14 @@ model Categoria {
   createdAt DateTime  @default(now()) @map("created_at")
 
   @@map("categorias")
+}
+
+enum TipoAnuncio {
+  TROCA
+  DOACAO
+  VENDA
+
+  @@map("tipo_anuncio")
 }
 
 enum MotivoExclusao {

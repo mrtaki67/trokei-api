@@ -77,6 +77,7 @@ export class FetchAllAdvertisementsController {
           updatedAt: true,
           bairro: true,
           cidade: true,
+          tipoAnuncio: true,
           fotos: {
             take: 1,
             select: {
@@ -135,6 +136,7 @@ export class FetchAllAdvertisementsController {
           updatedAt: true,
           bairro: true,
           cidade: true,
+          tipoAnuncio: true,
           fotos: {
             take: 1,
             select: {
@@ -180,6 +182,7 @@ export class FetchAllAdvertisementsController {
             anuncios.updated_at as updatedAt,
             anuncios.bairro,
             anuncios.cidade,
+            anuncios.tipo_anuncio as tipoAnuncio,
             (
               SELECT JSON_OBJECT('id', f.id, 'key', f.key)
               FROM \`fotos_anuncios\` f

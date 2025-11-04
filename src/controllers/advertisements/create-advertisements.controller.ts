@@ -60,6 +60,7 @@ const createAdvertisementsBodySchema = z.object({
     .trim()
     .min(1, 'O campo estado não pode estar em branco.')
     .max(50),
+  tipoAnuncio: z.enum(['TROCA', 'DOACAO', 'VENDA']),
 })
 
 export type CreateAdvertisementsBodySchema = z.infer<
@@ -105,6 +106,7 @@ export class CreateAdvertisementsController {
       estado,
       cep,
       pais,
+      tipoAnuncio
     } = body
     const { id: clerkId } = userKey
 
@@ -173,6 +175,7 @@ export class CreateAdvertisementsController {
         estado,
         cep,
         pais,
+        tipoAnuncio,
         fotos: {
           create: uploadedPhotoKeys.map((key) => ({
             key,

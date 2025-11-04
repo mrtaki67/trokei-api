@@ -37,6 +37,7 @@ export class FetchAdvertisementsUserController {
         updatedAt: true,
         bairro: true,
         cidade: true,
+        tipoAnuncio: true,
         fotos: {
           take: 1,
           select: {
