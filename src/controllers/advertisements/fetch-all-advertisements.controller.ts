@@ -73,7 +73,6 @@ export class FetchAllAdvertisementsController {
         select: {
           id: true,
           titulo: true,
-          tags: true,
           createdAt: true,
           updatedAt: true,
           bairro: true,
@@ -83,6 +82,12 @@ export class FetchAllAdvertisementsController {
             select: {
               id: true,
               key: true,
+            },
+          },
+          categoria: {
+            select: {
+              id: true,
+              nome: true,
             },
           },
         },
@@ -126,7 +131,6 @@ export class FetchAllAdvertisementsController {
         select: {
           id: true,
           titulo: true,
-          tags: true,
           createdAt: true,
           updatedAt: true,
           bairro: true,
@@ -136,6 +140,12 @@ export class FetchAllAdvertisementsController {
             select: {
               id: true,
               key: true,
+            },
+          },
+          categoria: {
+            select: {
+              id: true,
+              nome: true,
             },
           },
         },
@@ -166,7 +176,6 @@ export class FetchAllAdvertisementsController {
           SELECT
             anuncios.id,
             anuncios.titulo,
-            anuncios.tags,
             anuncios.created_at as createdAt,
             anuncios.updated_at as updatedAt,
             anuncios.bairro,
@@ -177,6 +186,11 @@ export class FetchAllAdvertisementsController {
                 WHERE f.anuncioId = anuncios.id
                 LIMIT 1
             ) AS foto,
+            (
+              SELECT JSON_OBJECT('id', c.id, 'nome', c.nome)
+              FROM \`categorias\` c
+                WHERE c.id = anuncios.categoriaId
+            ) AS categoria,
             CASE
               WHEN ( 6371 * acos( cos( radians(${lat}) ) * cos( radians( lat ) ) * cos( radians( lng ) - radians(${lng}) ) + sin( radians(${lat}) ) * sin( radians( lat ) ) ) ) < 1 
               THEN CONCAT(ROUND(( 6371 * acos( cos( radians(${lat}) ) * cos( radians( lat ) ) * cos( radians( lng ) - radians(${lng}) ) + sin( radians(${lat}) ) * sin( radians( lat ) ) ) ) * 1000), 'm')

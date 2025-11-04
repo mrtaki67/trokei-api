@@ -34,17 +34,7 @@ const updateAdvertisementsBodySchema = z
       .min(1, 'A descricao não pode estar em branco.')
       .max(200),
     // Tags virão como uma string separada por vírgulas. Ex: "novo,troca,urgente"
-    tags: z
-      .string()
-      .trim()
-      .min(1, 'O campo de tags não pode estar em branco.')
-      .transform((val) => val.split(',').map((tag) => tag.trim()))
-      .pipe(
-        z
-          .array(z.string())
-          .min(1, 'Pelo menos uma tag é necessária.')
-          .max(5, 'O anúncio pode ter no máximo 5 tags.'),
-      ),
+    categoriaId: z.string().uuid(),
     lat: z.string().pipe(z.coerce.number()),
     lng: z.string().pipe(z.coerce.number()),
     bairro: z
@@ -119,7 +109,7 @@ export class UpdateAdvertisementsController {
       lng,
       bairro,
       cidade,
-      tags,
+      categoriaId,
       estado,
       cep,
       pais,
@@ -201,6 +191,16 @@ export class UpdateAdvertisementsController {
       )
     }
 
+    const categoria = await this.prisma.categoria.findUnique({
+      where: {
+        id: categoriaId,
+      },
+    })
+
+    if (!categoria) {
+      throw new NotFoundException('Categoria não encontrada.')
+    }
+
     await this.prisma.anuncio.update({
       where: { id },
       data: {
@@ -213,7 +213,7 @@ export class UpdateAdvertisementsController {
         estado,
         cep,
         pais,
-        tags,
+        categoriaId,
         fotos: {
           create: novasFotosKeys.map((key) => ({
             key,

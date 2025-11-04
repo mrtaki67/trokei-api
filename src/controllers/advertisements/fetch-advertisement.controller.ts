@@ -26,6 +26,12 @@ export class FetchAdvertisementController {
             createdAt: true,
           },
         },
+        categoria: {
+          select: {
+            id: true,
+            nome: true,
+          },
+        },
       },
     })
 

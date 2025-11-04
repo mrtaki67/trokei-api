@@ -43,7 +43,12 @@ export class FetchChatController {
           select: {
             id: true,
             titulo: true,
-            tags: true,
+            categoria: {
+              select: {
+                id: true,
+                nome: true,
+              },
+            },
             fotos: {
               take: 1,
               select: {

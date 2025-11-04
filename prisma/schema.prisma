@@ -36,7 +36,8 @@ model Anuncio {
   user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   titulo         String          @db.VarChar(50)
   descricao      String          @db.VarChar(200)
-  tags           Json
+  categoriaId    String
+  categoria      Categoria       @relation(fields: [categoriaId], references: [id])
   lat            Float
   lng            Float
   bairro         String          @db.VarChar(50)
@@ -54,6 +55,15 @@ model Anuncio {
   motivoExclusao MotivoExclusao? @map("motivo_exclusao")
 
   @@map("anuncios")
+}
+
+model Categoria {
+  id        String    @id @default(uuid())
+  nome      String    @unique
+  anuncios  Anuncio[]
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  @@map("categorias")
 }
 
 enum MotivoExclusao {

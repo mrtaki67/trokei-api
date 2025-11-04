@@ -21,6 +21,7 @@ import { FetchChatsController } from './controllers/chat/fetch-chats.controller'
 import { FetchChatController } from './controllers/chat/fetch-chat.controller'
 import { ChatGateway } from './events/chat.gateway'
 import { SavedAdvertisementsController } from './controllers/advertisements/saved-advertisements.controller'
+import { FetchCategoriesController } from './controllers/categories/fetch-categories.controller'
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { SavedAdvertisementsController } from './controllers/advertisements/save
     FetchChatsController,
     FetchChatController,
     SavedAdvertisementsController,
+    FetchCategoriesController,
   ],
   providers: [PrismaService, StorageService, ClerkClientProvider, ChatGateway],
 })

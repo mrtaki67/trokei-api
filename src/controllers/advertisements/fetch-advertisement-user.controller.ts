@@ -33,7 +33,6 @@ export class FetchAdvertisementsUserController {
       select: {
         id: true,
         titulo: true,
-        tags: true,
         createdAt: true,
         updatedAt: true,
         bairro: true,
@@ -43,6 +42,12 @@ export class FetchAdvertisementsUserController {
           select: {
             id: true,
             key: true,
+          },
+        },
+        categoria: {
+          select: {
+            id: true,
+            nome: true,
           },
         },
       },
