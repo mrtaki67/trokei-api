@@ -35,7 +35,7 @@ model Anuncio {
   userId         String
   user           User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   titulo         String          @db.VarChar(50)
-  descricao      String          @db.VarChar(200)
+  descricao      String          @db.VarChar(5000)
   categoriaId    String
   categoria      Categoria       @relation(fields: [categoriaId], references: [id])
   lat            Float

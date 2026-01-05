@@ -30,7 +30,7 @@ const createAdvertisementsBodySchema = z.object({
     .string()
     .trim()
     .min(1, 'A descricao não pode estar em branco.')
-    .max(200),
+    .max(5000),
   // Tags virão como uma string separada por vírgulas. Ex: "novo,troca,urgente"
   categoriaId: z.string().uuid(),
   lat: z.string().pipe(z.coerce.number()),
@@ -124,14 +124,6 @@ export class CreateAdvertisementsController {
       throw new ForbiddenException('Pelo menos uma foto é necessária.')
     }
 
-    const uploadedPhotoKeys = await this.storage.uploadMany(
-      files.map((file) => ({
-        fileName: file.fieldname,
-        fileType: file.mimetype,
-        body: file.buffer,
-      })),
-    )
-
     const userAdvertisementsCount = await this.prisma.anuncio.count({
       where: {
         userId: user.id,
@@ -157,6 +149,14 @@ export class CreateAdvertisementsController {
     if (!categoria) {
       throw new NotFoundException('Categoria não encontrada.')
     }
+
+    const uploadedPhotoKeys = await this.storage.uploadMany(
+      files.map((file) => ({
+        fileName: file.fieldname,
+        fileType: file.mimetype,
+        body: file.buffer,
+      })),
+    )
 
     const expiresAt = new Date()
     expiresAt.setDate(expiresAt.getDate() + 30) // Anúncio expira em 30 dias

@@ -32,7 +32,7 @@ const updateAdvertisementsBodySchema = z
       .string()
       .trim()
       .min(1, 'A descricao não pode estar em branco.')
-      .max(200),
+      .max(5000),
     // Tags virão como uma string separada por vírgulas. Ex: "novo,troca,urgente"
     categoriaId: z.string().uuid(),
     lat: z.string().pipe(z.coerce.number()),
