@@ -14,6 +14,12 @@ export const envSchema = z.object({
   CLERK_WEBHOOK_SECRET: z.string(),
   TROKEI_APP_URL: z.string().url(),
   TROKEI_APP_URL_WWW: z.string().url(),
+  SMTP_HOST: z.string(),
+  SMTP_PORT: z.coerce.number(),
+  SMTP_SECURE: z.string().transform((v) => v === 'true'),
+  SMTP_USER: z.string(),
+  SMTP_PASS: z.string(),
+  SMTP_FROM: z.string(),
 })
 
 export type Env = z.infer<typeof envSchema>

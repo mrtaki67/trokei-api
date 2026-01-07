@@ -25,6 +25,8 @@ import { FetchCategoriesController } from './controllers/categories/fetch-catego
 import { ScheduleModule } from '@nestjs/schedule'
 import { DeleteExpiredAdvertisementsCronJob } from './jobs/advertisements/delete-expired-advertisements-cron-job.service'
 import { RenewAdvertisementController } from './controllers/advertisements/renew-advertisements.controller'
+import { SendMailController } from './controllers/mail/send-mail.controller'
+import { EmailService } from './controllers/mail/email.service'
 
 @Module({
   imports: [
@@ -53,6 +55,7 @@ import { RenewAdvertisementController } from './controllers/advertisements/renew
     SavedAdvertisementsController,
     FetchCategoriesController,
     RenewAdvertisementController,
+    SendMailController,
   ],
   providers: [
     PrismaService,
@@ -60,6 +63,7 @@ import { RenewAdvertisementController } from './controllers/advertisements/renew
     ClerkClientProvider,
     ChatGateway,
     DeleteExpiredAdvertisementsCronJob,
+    EmailService,
   ],
 })
 export class AppModule {}
